@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="lila">#A78EBE</color>
+    <color name="rojo">#C9899C</color>
+    <color name="VerdePastel">#7FBF9C</color>
+    <color name="azul_pastel">#9BC4E2</color>
+    <color name="verde_pastel">#B7E1C7</color>
+    <color name="lila_pastel">#D7BCE8</color>
+    <color name="amarillo_pastel">#FDEAA9</color>
+    <color name="rosa_pastel">#FBB2AC</color>
+    <color name="turquesa_pastel">#A4D8D2</color>
+    <color name="gris_oscuro">#333333</color>
+    <color name="gris_medio">#808080</color>
+    <color name="gris_claro">#CCCCCC</color>
+    <color name="azul_acento">#0099CC</color>
+    <color name="verde_acento">#66CC33</color>
+    <color name="rojo_acento">#FF4444</color>
+    <color name="amarillo_acento">#FFBB33</color>
+    <color name="naranja_acento">#FF8800</color>
+    <color name="naranja">#F28B30</color>
+    <color name="gris">#D9CCC1</color>
+    <color name="negro">#26211D</color>
+    <color name="rojoClaro">#F20505</color>
+    <color name="rojoOscuro">#BF0404</color>
+    <color name="color_textview">#FFFFFF</color> <!-- Blanco -->
+    <color name="color_edittext">#E6E6E6</color> <!-- Gris claro -->
+    <color name="color_button">#4CAF50</color> <!-- Verde -->
+
+
+</resources>

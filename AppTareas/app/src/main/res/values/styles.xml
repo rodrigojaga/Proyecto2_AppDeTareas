@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <style name="TextViewStyle" parent="Widget.AppCompat.TextView">
+        <item name="android:textSize">30dp</item>
+        <item name="android:textColor">@color/color_textview</item>
+    </style>
+
+    <style name="EditTextStyle" parent="Widget.AppCompat.EditText">
+        <item name="android:textColor">@color/negro</item>
+        <item name="android:textSize">30dp</item>
+        <item name="android:background">@color/gris</item>
+
+    </style>
+
+    <style name="ButtonCompletado" parent="Widget.AppCompat.Button">
+        <item name="android:textColor">@color/color_textview</item>
+        <item name="android:textSize">15dp</item>
+        <item name="android:background">@color/verde_acento</item>
+    </style>
+
+    <style name="ButtonEditar" parent="Widget.AppCompat.Button">
+        <item name="android:textColor">@color/color_textview</item>
+        <item name="android:textSize">15dp</item>
+        <item name="android:background">@color/azul_acento</item>
+    </style>
+
+    <style name="ButtonEliminar" parent="Widget.AppCompat.Button">
+        <item name="android:textColor">@color/color_textview</item>
+        <item name="android:textSize">15dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:background">@color/rojo_acento</item>
+    </style>
+
+
+</resources>
