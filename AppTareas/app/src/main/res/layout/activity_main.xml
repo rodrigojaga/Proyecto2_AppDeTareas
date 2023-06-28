@@ -22,6 +22,7 @@
         android:layout_height="52dp"
         android:layout_marginBottom="16dp"
         android:drawableLeft="@drawable/baseline_add_circle_24"
+        android:onClick="siguiente"
         android:text="NUEVA TAREA"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

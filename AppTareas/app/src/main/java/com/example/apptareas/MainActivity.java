@@ -8,59 +8,139 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
+import android.view.View;
+import android.widget.Adapter;
+import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Adaptador.OnItemClickListener {
 
-    private static final int REQUEST_CAMERA_PERMISSION = 1;
+
+
+    static ArrayList<datos> lista = new ArrayList<>();;
+    RecyclerView contenedor;
+    LinearLayoutManager layout;
+    Adaptador adapter;
+
+
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ArrayList<datos> lista = new ArrayList<datos>();
-        lista.add(new datos("Imagen No.1",R.drawable.uno,0));
-        lista.add(new datos("Imagen No.2",R.drawable.dos,0));
-
-        RecyclerView contenedor = (RecyclerView) findViewById(R.id.contenedor);
+        contenedor = findViewById(R.id.contenedor);
         contenedor.setHasFixedSize(true);
-        LinearLayoutManager layout = new LinearLayoutManager(getApplicationContext());
-        layout.setOrientation(LinearLayoutManager.VERTICAL);
-        contenedor.setAdapter(new Adaptador(lista));
+        layout = new LinearLayoutManager(getApplicationContext());
+        //layout.setOrientation(LinearLayoutManager.VERTICAL);
         contenedor.setLayoutManager(layout);
 
-        // Verificar y solicitar permisos al inicio de la actividad
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)== PackageManager.PERMISSION_GRANTED){
-            //El permiso de la capara ya ha sido otorgado
-        }
-        else {
-            //El permiso de la camara no ha sido otorgado, solicitarlo
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
-        }
+        obtenerDatos(this);
+        adapter = new Adaptador(lista);
+
+        //contenedor.setAdapter(new Adaptador(lista));
+        contenedor.setAdapter(adapter);
+
+        //contenedor.setLayoutManager(layout);
+
+        //obtenerDatos(this);
+        cargarTareas();
+        //contenedor.setAdapter(new Adaptador(lista));
+
+        //Adaptador adapter = new Adaptador(lista);
+        adapter.setOnItemClickListener(this);
+        //contenedor.setAdapter(adapter);
+
+
 
     }
+
+
+    public void siguiente(View view){
+        Intent siguiente = new Intent(this, agregarTarea.class);
+        startActivity(siguiente);
+    }
+
+
+    public void lista(String titulo, Bitmap imagen){
+        //datos dt = new datos(titulo,0,imagen);
+        lista.add(new datos(titulo,0,imagen));
+        //adapter.notifyItemInserted(lista.size()-1);
+
+
+    }
+
+    private void obtenerDatos(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences("MiSharedPreferences", Context.MODE_PRIVATE);
+
+        // Obtener los datos
+        String titulo = sharedPreferences.getString("titulo", "");
+        String descripcion = sharedPreferences.getString("descripcion", "");
+        String imagenString = sharedPreferences.getString("imagen", "");
+
+
+        Bitmap imagen = base64ToBitmap(imagenString);
+
+
+        lista(titulo,imagen);
+    }
+
+    private Bitmap base64ToBitmap(String base64String) {
+        byte[] decodedString = Base64.decode(base64String, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+    }
+
+
+    private void cargarTareas() {
+        SharedPreferences sharedPreferences = getSharedPreferences("MiSharedPreferencesJson", Context.MODE_PRIVATE);
+
+        String jsonTareas = sharedPreferences.getString("lista_tareas", "");
+        if (!jsonTareas.isEmpty()) {
+            Gson gson = new Gson();
+            Type tipoListaTareas = new TypeToken<ArrayList<datos>>() {}.getType();
+
+            for(int i=0;i>lista.size();i++){
+                lista = gson.fromJson(jsonTareas, tipoListaTareas);
+                contenedor.setAdapter(new Adaptador(lista));
+            }
+
+        }
+    }
+
+
+
+
 
 
     @Override
-    public  void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    public void onItemClick(int position) {
+        //lista.remove(position);
 
-        if(requestCode == REQUEST_CAMERA_PERMISSION){
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                Toast.makeText(this, "Los permisos de cámara han sido concedidos.", Toast.LENGTH_SHORT).show();
+            if(!lista.isEmpty()){
+
+                lista.remove(position);
+                adapter.notifyItemRemoved(position);
             }
-            else{
-                Toast.makeText(this, "Los permisos de cámara han sido denegados.", Toast.LENGTH_SHORT).show();
-            }
-        }
+
     }
-
 }

@@ -14,25 +14,22 @@ import java.util.List;
 
 public class viewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-    Button btnUno,btnDos;
+    Button btnUno,btnDos,btnTres;
     ImageView imagen;
     TextView titulo;
 
     public List<datos> ListaObjeto;
 
-    public viewHolder(@NonNull View itemView, List<datos> datos) {
+    public viewHolder(@NonNull View itemView) {
         super(itemView);
 
-        btnUno = (Button) itemView.findViewById(R.id.btn1);
-        btnDos = (Button) itemView.findViewById(R.id.btn2);
-        imagen = (ImageView) itemView.findViewById(R.id.imagen);
-        titulo = (TextView) itemView.findViewById(R.id.texto);
+        btnUno = itemView.findViewById(R.id.btnDelete);
+        btnDos = itemView.findViewById(R.id.btnEditar);
+        btnTres = itemView.findViewById(R.id.btnCompletado);
+        imagen = itemView.findViewById(R.id.imagen);
+        titulo = itemView.findViewById(R.id.texto);
 
-        btnUno.setOnClickListener(this);
 
-        btnDos.setOnClickListener(this);
-
-        ListaObjeto = datos;
 
     }
 
@@ -42,11 +39,14 @@ public class viewHolder extends RecyclerView.ViewHolder implements View.OnClickL
         int position = getAdapterPosition();
         datos objeto = ListaObjeto.get(position);
         if(v.getId() == btnUno.getId()){
-            Toast.makeText(btnUno.getContext(),"Boton 1 del item "+position+" correspondiente al titulo "+objeto.getTitulo(),Toast.LENGTH_SHORT).show();
+            Toast.makeText(btnUno.getContext(),"Remover este item No. "+position,Toast.LENGTH_SHORT).show();
 
         }
         if(v.getId() == btnDos.getId()){
-            Toast.makeText(btnDos.getContext(),"Boton 2",Toast.LENGTH_SHORT).show();
+            Toast.makeText(btnDos.getContext(),"Editar este item No."+position,Toast.LENGTH_SHORT).show();
+        }
+        if(v.getId() == btnTres.getId()){
+            Toast.makeText(btnDos.getContext(),"Completado este item No."+position,Toast.LENGTH_SHORT).show();
         }
 
 
