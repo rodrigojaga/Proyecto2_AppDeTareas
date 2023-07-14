@@ -11,6 +11,8 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
@@ -48,11 +50,19 @@ public class agregarTarea extends AppCompatActivity implements View.OnClickListe
 
     Button btnTomar, btnGuardar, btnAgregar;
     ImageView iVFoto;
-    Bitmap bitmap;
+    Bitmap bitmap, imgGeneral;
 
     Drawable drawable;
 
+    boolean xd;
+    String id,tituloAntiguo, descAntiguo, imgAntigua;
+
     EditText etTitulo, etDescripcion;
+
+    TextView tvEncabezado;
+
+    private DatabaseHelper databaseHelper;
+    private SQLiteDatabase database;
 
     private ArrayList<datos> listaTareas = new ArrayList<>();
 
@@ -79,6 +89,7 @@ public class agregarTarea extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_agregar_tarea);
         initUI();
 
+
         btnTomar.setOnClickListener(this);
         btnGuardar.setOnClickListener(this);
 
@@ -90,6 +101,22 @@ public class agregarTarea extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+        Bundle bundle = getIntent().getExtras();
+        if(bundle!=null){
+            xd = bundle.getBoolean("Message_Boolean_key");
+            id = bundle.getString("Message_Id_key");
+            tituloAntiguo = bundle.getString("Message_Title_key");
+            descAntiguo = bundle.getString("Message_Description_key");
+            imgAntigua = bundle.getString("Message_Image_key");
+        }
+
+        if(xd){
+
+            btnAgregar.setText("Actualizar");
+            tvEncabezado.setText("Actualizar Tarea");
+            showPast();
+        }
+
     }
 
     private void initUI(){
@@ -99,6 +126,7 @@ public class agregarTarea extends AppCompatActivity implements View.OnClickListe
         btnAgregar = findViewById(R.id.btnAgregarTarea);
         etTitulo = findViewById(R.id.etTituloTarea);
         etDescripcion = findViewById(R.id.etDescTarea);
+        tvEncabezado = findViewById(R.id.tvEncabezado);
     }
 
 
@@ -255,49 +283,115 @@ public class agregarTarea extends AppCompatActivity implements View.OnClickListe
     }
 
     public void obtenerDatos(){
-        Toast.makeText(this,"Entrada obtenerDatos",Toast.LENGTH_SHORT).show();
-        String tituloTare = etTitulo.getText().toString();
-        String des = etDescripcion.getText().toString();
-        // Pasar el Bitmap a través de un Intent
+        //Toast.makeText(this,"Entrada obtenerDatos",Toast.LENGTH_SHORT).show();
+
+        databaseHelper = new DatabaseHelper(this);
+        database = databaseHelper.getWritableDatabase();
+
+
+        String tituloTare = etTitulo.getText().toString().trim();
+        String des = etDescripcion.getText().toString().trim();
         Intent intent = new Intent(this, MainActivity.class);
-        agregarTarea(tituloTare,des,bitmap);
-        guardarDatos(this,tituloTare,"des",bitmap);
 
-        //intent.putExtra("titulo",tituloTare);
-        //intent.putExtra("imagen", bitmap);
-        startActivity(intent);
+        if(xd && btnAgregar.getText().toString().equals("Actualizar")) {
 
+            if (!tituloTare.isEmpty() && !des.isEmpty()) {
+                Drawable drawable1 = iVFoto.getDrawable();
+                Bitmap bm = ((BitmapDrawable) drawable1).getBitmap();
+                String imgN = bitmapToBase64(bm);
+                Toast.makeText(agregarTarea.this, id, Toast.LENGTH_SHORT).show();
+                UpdateTask(tituloTare,des,imgN);
+                Toast.makeText(agregarTarea.this, "Se Actualizo correctamente", Toast.LENGTH_SHORT).show();
 
+                startActivity(intent);
+            } else {
+                Toast.makeText(agregarTarea.this, "No se Actualizo", Toast.LENGTH_SHORT).show();
+            }
 
-        //String descripcionTarea = etDescripcion.getText().toString();
-
-
-
-
+        }else{
+            if (!tituloTare.isEmpty() && !des.isEmpty()) {
+                String imgN = bitmapToBase64(bitmap);
+                insertTask(tituloTare, des, imgN);
+                Toast.makeText(agregarTarea.this, "Se ingreso correctamente", Toast.LENGTH_SHORT).show();
+                etTitulo.setText("");
+                etDescripcion.setText("");
+                startActivity(intent);
+            } else {
+                Toast.makeText(agregarTarea.this, "No se ingreso", Toast.LENGTH_SHORT).show();
+            }
+        }
 
     }
 
+    private void showPast(){
+
+        etTitulo.setText(tituloAntiguo);
+        etDescripcion.setText(descAntiguo);
+        Bitmap imgTemp = base64ToBitmap(imgAntigua);
+        iVFoto.setImageBitmap(imgTemp);
+        imgGeneral = imgTemp;
+
+    }
+
+    private void UpdateTask(String tasktitle,String taskDesc, String taskImg){
+        //Toast.makeText(agregarTarea.this, "Actualizacion", Toast.LENGTH_SHORT).show();
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.ColumnTask,tasktitle);
+        values.put(DatabaseHelper.ColumnDesc,taskDesc);
+        values.put(DatabaseHelper.ColumnImg,taskImg);
+        String selection = DatabaseHelper.ColumnID+"=?";
+        String[] selectionArgs = {id};
+        database.update(databaseHelper.TableName, values, selection,selectionArgs);
+    }
+
+
+    private void insertTask(String taskTitle, String taskDes,String taskIMG){
+        ContentValues values = new ContentValues();
+        values.put(DatabaseHelper.ColumnTask,taskTitle);
+        values.put(DatabaseHelper.ColumnDesc,taskDes);
+        values.put(DatabaseHelper.ColumnImg,taskIMG);
+
+        database.insert(DatabaseHelper.TableName,null,values);
+        Toast.makeText(agregarTarea.this,taskTitle+" "+taskDes,Toast.LENGTH_SHORT).show();
+        //readTask();
+    }
+
+    private Bitmap base64ToBitmap(String base64String) {
+        byte[] decodedString = Base64.decode(base64String, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+    }
+//    private void readTask(){
+//        String[] projection = {DatabaseHelper.ColumnTask};
+//        Cursor cursor = database.query(DatabaseHelper.TableName, projection,null,null,null,null,null);
+//        if(cursor.moveToFirst()){
+//            do{
+//                String task = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ColumnTask));
+//                Toast.makeText(agregarTarea.this,task,Toast.LENGTH_SHORT).show();
+//            }while(cursor.moveToNext());
+//        }
+//        cursor.close();
+//    }
 
     private void guardarDatos(Context context, String titulo, String descripcion, Bitmap imagen) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences("MiSharedPreferences", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
+        //SharedPreferences sharedPreferences = context.getSharedPreferences("MiSharedPreferences", Context.MODE_PRIVATE);
+        //SharedPreferences.Editor editor = sharedPreferences.edit();
 
         // Guardar el título y la descripción como cadenas de texto
-        editor.putString("titulo", titulo);
-        editor.putString("descripcion", descripcion);
+        //editor.putString("titulo", titulo);
+        //editor.putString("descripcion", descripcion);
 
         // Convertir el bitmap a una cadena Base64
-        String imagenString = bitmapToBase64(imagen);
-        editor.putString("imagen", imagenString);
+        //String imagenString = bitmapToBase64(imagen);
+        //editor.putString("imagen", imagenString);
 
         // Guardar los cambios
-        editor.apply();
+        //editor.apply();
     }
 
     private void agregarTarea(String titulo, String descripcion, Bitmap imagen) {
-        datos tarea = new datos(titulo,0,imagen);
-        listaTareas.add(tarea);
-        guardarTareas();
+        //datos tarea = new datos(titulo,0,imagen);
+        //listaTareas.add(tarea);
+        //guardarTareas();
     }
 
     public void guardarTareas() {
@@ -328,5 +422,8 @@ public class agregarTarea extends AppCompatActivity implements View.OnClickListe
         Intent volver = new Intent(this, MainActivity.class);
         startActivity(volver);
     }
+
+
+
 }
 

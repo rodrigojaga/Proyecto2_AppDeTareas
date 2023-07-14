@@ -16,7 +16,7 @@ public class viewHolder extends RecyclerView.ViewHolder implements View.OnClickL
 
     Button btnUno,btnDos,btnTres;
     ImageView imagen;
-    TextView titulo;
+    TextView titulo, id1;
 
     public List<datos> ListaObjeto;
 
@@ -28,7 +28,7 @@ public class viewHolder extends RecyclerView.ViewHolder implements View.OnClickL
         btnTres = itemView.findViewById(R.id.btnCompletado);
         imagen = itemView.findViewById(R.id.imagen);
         titulo = itemView.findViewById(R.id.texto);
-
+        id1 = itemView.findViewById(R.id.idTarea111);
 
 
     }
